@@ -1,20 +1,20 @@
 import datetime
 import logging
 
-from app.interfaces import WorkerInterface, S3Interface, LogsInterface
+from app.interfaces import WorkerInterface, S3Interface, LogInterface
 
 
 class LogAdminWorker(WorkerInterface):
 
     def __init__(
         self,
-        logs_service: LogsInterface,
+        logs_service: LogInterface,
         s3_service: S3Interface,
         time_to_log_file_live_in_seconds: int,
         max_log_file_size: int,
         time_format: str
     ):
-        self.logs_service: LogsInterface = logs_service
+        self.logs_service: LogInterface = logs_service
         self.s3_service: S3Interface = s3_service
         self.time_to_log_file_live_in_seconds: int = time_to_log_file_live_in_seconds
         self.max_log_file_size: int = max_log_file_size

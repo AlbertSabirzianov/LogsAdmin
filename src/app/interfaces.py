@@ -6,10 +6,6 @@ from abc import ABC, abstractmethod
 class S3Interface(ABC):
 
     @abstractmethod
-    def create_bucket(self) -> None:
-        raise NotImplementedError
-
-    @abstractmethod
     def upload(self, bucket_name: str, file_name: str, file: io.BytesIO) -> None:
         raise NotImplementedError
 
@@ -26,7 +22,7 @@ class S3Interface(ABC):
         raise NotImplementedError
 
 
-class LogsInterface(ABC):
+class LogInterface(ABC):
 
     @abstractmethod
     def get_all_log_files(self) -> list[str]:
