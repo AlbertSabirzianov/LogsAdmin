@@ -1,7 +1,11 @@
 import datetime
+import io
 import logging
+import time
 
-from app.interfaces import WorkerInterface, S3Interface, LogInterface
+from botocore.exceptions import ClientError
+
+from app.interfaces import WorkerInterface, S3Interface, LogInterface, CompressInterface
 
 
 class LogAdminWorker(WorkerInterface):
@@ -10,18 +14,20 @@ class LogAdminWorker(WorkerInterface):
         self,
         logs_service: LogInterface,
         s3_service: S3Interface,
+        compress_service: CompressInterface,
         time_to_log_file_live_in_seconds: int,
         max_log_file_size: int,
         time_format: str
     ):
         self.logs_service: LogInterface = logs_service
         self.s3_service: S3Interface = s3_service
+        self.compress_service: CompressInterface = compress_service
         self.time_to_log_file_live_in_seconds: int = time_to_log_file_live_in_seconds
         self.max_log_file_size: int = max_log_file_size
         self.time_format: str = time_format
 
     def get_s3_file_name_from_log_name(self, log_name: str) -> str:
-        return f"{log_name}_{datetime.datetime.now().strftime(self.time_format)}"
+        return f"{log_name}_{datetime.datetime.now().strftime(self.time_format)}{self.compress_service.archive_format}"
 
     def is_s3_file_too_old(self, last_modified: datetime.datetime) -> bool:
         delta = datetime.timedelta(seconds=self.time_to_log_file_live_in_seconds)
@@ -34,11 +40,18 @@ class LogAdminWorker(WorkerInterface):
             size = self.logs_service.get_log_file_size(name)
             logging.info(f"{name} - size {size}")
             if size > self.max_log_file_size:
-                self.s3_service.upload(
-                    bucket_name=name,
-                    file_name=self.get_s3_file_name_from_log_name(name),
-                    file=self.logs_service.get_log_file_data(name)
+                archive: io.BytesIO = self.compress_service.compress_file(
+                    name
                 )
+                try:
+                    self.s3_service.upload(
+                        bucket_name=name,
+                        file_name=self.get_s3_file_name_from_log_name(name),
+                        file=archive
+                    )
+                except ClientError as e:
+                    logging.error(f"Can't upload file {name} - {e}")
+                    continue
                 self.logs_service.clean_log_file(name)
 
     def clean_s3_archives(self):
@@ -63,6 +76,7 @@ class LogAdminWorker(WorkerInterface):
                 break
             else:
                 logging.info("End Admin")
+                time.sleep(1)
 
 
 

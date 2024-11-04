@@ -1,6 +1,6 @@
 import datetime
 import io
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 
 
 class S3Interface(ABC):
@@ -33,11 +33,18 @@ class LogInterface(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_log_file_data(self, file_name: str) -> io.BytesIO:
+    def clean_log_file(self, file_name: str) -> None:
         raise NotImplementedError
 
+
+class CompressInterface(ABC):
+
     @abstractmethod
-    def clean_log_file(self, file_name: str) -> None:
+    def compress_file(self, log_file_name: str) -> io.BytesIO:
+        raise NotImplementedError
+
+    @abstractproperty
+    def archive_format(self) -> str:
         raise NotImplementedError
 
 

@@ -15,8 +15,8 @@ class S3Settings(BaseSettings):
 class LogsSettings(BaseSettings):
     logs_folder: str = "/logs"
     log_file_extensions: list[str] = [".log"]
-    max_log_file_size_in_mg: int
-    time_to_live_log_archives_in_days: int
+    max_log_file_size_in_bytes: int
+    time_to_live_log_archives_in_seconds: int
 
 
 
