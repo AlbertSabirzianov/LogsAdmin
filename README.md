@@ -1,12 +1,13 @@
 # LogsAdmin
-A service that monitors the size of log files in folder(LOGS_DIR in env variable) and, when exceeding the limits,
-saves compressed files to s3 storage and clears log files. 
-The storage period of compressed archives is configured via environment variable TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS.
-Log files by default are files with the ".log" extension that are located in the specified directory,
-extensions that are taken as log files can be configured using a variable LOG_FILE_EXTENSIONS 
-(in default LOG_FILE_EXTENSIONS=[".log"])
-# how to run
-you can include LogsAdmin in your docker-compose like this
+
+**LogsAdmin** — это сервис, который отслеживает размер лог-файлов в указанной папке (путь задается переменной окружения `LOGS_DIR`). Когда размер лог-файлов превышает заданные пределы, сервис сохраняет сжатые файлы в хранилище S3 и очищает лог-файлы. Период хранения сжатых архивов настраивается через переменную окружения `TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS`.
+
+По умолчанию лог-файлы имеют расширение `.log` и находятся в указанной директории. Расширения, которые считаются лог-файлами, можно настроить с помощью переменной `LOG_FILE_EXTENSIONS` (по умолчанию `LOG_FILE_EXTENSIONS=[".log"]`).
+
+## Как запустить
+
+Вы можете включить LogsAdmin в ваш `docker-compose` следующим образом:
+
 ```yaml
 services:
   log_archiver:
@@ -21,19 +22,24 @@ services:
       - MAX_LOG_FILE_SIZE_IN_BYTES=${MAX_LOG_FILE_SIZE_IN_BYTES}
       - TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS=${TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS}
 ```
-Values of environment variables
+## Значения переменных окружения
 ```text
-LOGS_DIR=./logs # path to your directory with log files
-# S3 values 
+LOGS_DIR=./logs # путь к вашей директории с лог-файлами
+
+# Значения для S3
 S3_HOST=minio  
 S3_PORT=9000 
 S3_ACCESS_KEY=S3_ACCESS_KEY 
 S3_SECRET_KEY=S3_SECRET_KEY
 
-MAX_LOG_FILE_SIZE_IN_BYTES=5 # max log size in bytes
-TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS=10 # time to archive live in seconds
+MAX_LOG_FILE_SIZE_IN_BYTES=5 # максимальный размер лог-файла в байтах
+TIME_TO_LIVE_LOG_ARCHIVES_IN_SECONDS=10 # время хранения архивов в секундах
+LOG_FILE_EXTENSIONS=[".log"] # список расширений, которые мониторит LogsAdmin
 ```
-If necessary, you can also specify additional variables
-```text
-LOG_FILE_EXTENSIONS=[".log"] # list of extensions that LogsAdmin monitor
-```
+
+## Примечания
+
+- Убедитесь, что все переменные окружения правильно настроены перед запуском сервиса.
+- Для получения дополнительной информации о настройке S3, пожалуйста, обратитесь к документации вашего S3 провайдера.
+
+---
