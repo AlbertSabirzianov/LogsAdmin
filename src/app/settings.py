@@ -19,6 +19,8 @@ class LogsSettings(BaseSettings):
     time_to_live_log_archives_in_seconds: int
 
 
-
+class WorkerSettings(BaseSettings):
+    delay_time_in_seconds: int = 1
+    is_testing: bool = False
 
 

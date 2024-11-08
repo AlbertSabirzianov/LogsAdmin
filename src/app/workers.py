@@ -17,7 +17,8 @@ class LogAdminWorker(WorkerInterface):
         compress_service: CompressInterface,
         time_to_log_file_live_in_seconds: int,
         max_log_file_size: int,
-        time_format: str
+        time_format: str,
+        delay_time_in_seconds: int
     ):
         self.logs_service: LogInterface = logs_service
         self.s3_service: S3Interface = s3_service
@@ -25,6 +26,7 @@ class LogAdminWorker(WorkerInterface):
         self.time_to_log_file_live_in_seconds: int = time_to_log_file_live_in_seconds
         self.max_log_file_size: int = max_log_file_size
         self.time_format: str = time_format
+        self.delay_time_in_seconds: int = delay_time_in_seconds
 
     def get_s3_file_name_from_log_name(self, log_name: str) -> str:
         return f"{log_name}_{datetime.datetime.now().strftime(self.time_format)}{self.compress_service.archive_format}"
@@ -76,7 +78,7 @@ class LogAdminWorker(WorkerInterface):
                 break
             else:
                 logging.info("End Admin")
-                time.sleep(1)
+                time.sleep(self.delay_time_in_seconds)
 
 
 
